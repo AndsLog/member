@@ -12,8 +12,7 @@ router.post('/create', function(req, res) {
         "name": name,
         "age": age,
         "sex": sex,
-        "timestamp": Date.now(),
-        "id_key": ''
+        "timestamp": Date.now()
     }
     Cloudant({account:username, password:password}, function(err, cloudant) {
         if (err) {
@@ -94,8 +93,37 @@ router.put('/update', function(req, res) {
                 res.status(200).json(doc);
             })
         });
-    })
+    });
+});
 
-})
+router.delete('/delete', function(req, res) {
+    let id = req.body.id_key;
+    Cloudant({account:username, password:password}, function(err, cloudant) {
+        if (err) {
+            return console.log('Failed to initialize Cloudant: ' + err.message);
+        }
+        var db = cloudant.db.use('member');
+        // let query = {
+        //     "selector": {
+        //         "_id": {
+        //            "$eq": id
+        //         }
+        //      },
+        //      "sort": [{"timestamp": "asc"}]
+        // }
+        db.get(id, function(err, data) {
+            if (err) {
+                return console.log('Failed to get doc: ' + err.message);
+            }
+            let rev = data._rev;
+            db.destroy(id, rev, function(err, result) {
+                if (err) {
+                    return console.log('Failed to delete doc: ' + err.message);
+                }
+                res.status(200).json(result);
+            });
+        })
+    })
+});
 
 module.exports = router;

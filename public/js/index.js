@@ -136,5 +136,24 @@
             })
         });
     });
+
+    $(document).on('click', '#delete', function() {
+        memberId = $(this).parent().parent().attr('id');
+        let apiUrl = window.location.origin + '/api/delete';
+        let reqInit = {
+            "headers": new Headers({'Content-Type': 'application/json'}),
+            "method": 'DELETE',
+            "body": JSON.stringify({
+                "id_key": memberId
+            })
+        }
+        return window.fetch(apiUrl, reqInit).then(function(res) {
+            res.json().then(function(resJson) {
+                let id = resJson.id;
+                // $('#' + id).remove();
+                $(`#${id}`).remove();
+            });
+        });
+    });
     
 }());
